@@ -1,0 +1,41 @@
+@page "/pages"
+@model IndexModel
+
+<h1>The Illustrated Book</h1>
+
+<h2>Books in the razor pages</h2>
+@foreach (Book b in Model.Books)
+{
+    <div class="row">
+        <div class="col-md-9">
+            <h3>@b.Title</h3>
+        </div>
+    </div>
+
+    <form method="get" asp-page="Index">
+        <label for="selectedBook">Select a book:</label>
+        <select name="selectedBook" asp-items="@Model.Books.Select(b => new SelectListItem { Text = b.Title, Value = b.Title })"></select>
+        <button type="submit">Select</button>
+    </form>
+}
+
+@functions {
+    public class IndexModel : PageModel
+    {
+        private DataContext context;
+        public IEnumerable<Book> Books { get; set; } = Enumerable.Empty<Book>();
+
+        public IndexModel(DataContext ctx)
+        {
+            context = ctx;
+        }
+
+        [FromQuery]
+        public string? SelectedBook { get; set; } = string.Empty;
+
+        public void OnGet()
+        {
+            Books = context.Books.OrderBy(b => b.Title).ToList();
+        }
+    }
+}
