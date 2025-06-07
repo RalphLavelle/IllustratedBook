@@ -1,0 +1,44 @@
+<h3>BookList Blazor component</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>AuthorName</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Book b in Books)
+        {
+            <tr>
+                <td>@b.Title</td>
+                <td>@b.AuthorName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <label for="book">Select a book:</label>
+    <select name="book" @bind="SelectedBook">
+        <option disabled selected value="">Select a book</option>
+        @foreach (Book b in Books)
+        {
+            <option value="@b.BookId">@b.Title</option>
+        }
+    </select>
+</div>
+
+<button @onclick="IncrementCounter">Counter @Counter</button>
+
+@code {
+    [Inject]
+    public DataContext? DataContext { get; set; }
+    public int Counter { get; set; } = 1;
+    public IEnumerable<Book>? Books => DataContext?.Books;
+    public string SelectedBook { get; set; } = "";
+
+    public void IncrementCounter(MouseEventArgs e) {
+        Counter++;
+    }
+}

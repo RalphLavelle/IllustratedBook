@@ -2,10 +2,12 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width" />
-        <title>@ViewBag.Title</title>
+        <title>@ViewBag.Title</title>        
+        <base href="~/" />
     </head>
     <body>
-        <h1>Razor Pages</h1>
+        <h1>Pages/_Layout.cshtml</h1>
         @RenderBody()
+        <script src="_framework/blazor.server.js"></script>
     </body>
 </html>

@@ -2,27 +2,8 @@
 @using IllustratedBook.Models
 @using IllustratedBook.ViewModels
 
-<h1>The Illustrated Book</h1>
+<h1>Views/Home/index.cshtml</h1>
 
-<h2>Books</h2>
-@foreach (Book b in Model.Books)
-{
-    <div class="row">
-        <div class="col-md-9">
-            <h3>@b.Title</h3>
-        </div>
-    </div>
-}
+<h2>Server Razor component</h2>
 
-@if (Model.SelectedBook != null) {
-    <p>You chose @Model.SelectedBook</p>
-}
-
-<form method="get" asp-action="Index">
-    <label for="selectedBook">Select a book:</label>
-    <select name="selectedBook" asp-items="@Model.Books.Select(b => new SelectListItem { Text = b.Title, Value = b.Title })"></select>
-    <button type="submit">Select</button>
-</form>
-
-
-
+<component type="typeof(IllustratedBook.Blazor.BookList)" render-mode="Server" />
