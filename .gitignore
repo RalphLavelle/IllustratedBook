@@ -1,0 +1,5 @@
+**/bin/
+**/obj/
+
+/IllustratedBook/**/bin/
+/IllustratedBook/**/obj/
