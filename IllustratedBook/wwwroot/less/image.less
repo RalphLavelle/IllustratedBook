@@ -1,0 +1,56 @@
+// Image page specific styles
+// This file contains styles that are specific to the Image page
+// It will be compiled separately from the main styles
+
+// Import variables for consistency
+@import 'variables.less';
+
+// Image container styles
+.image-container {
+    // Center the image container
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: @spacing-medium;
+    
+    // Add some margin at the bottom for spacing
+    margin-bottom: @spacing-large;
+}
+
+// Responsive image styles
+.image-content {
+    // Make image responsive
+    max-width: 100%;
+    height: auto;
+    
+    // Add a subtle border and shadow for better visual appearance
+    border: 1px solid @border-color;
+    border-radius: @border-radius;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    // Smooth transition for any size changes
+    transition: @transition-base;
+}
+
+// Responsive breakpoints for different screen sizes
+@media (max-width: @breakpoint-sm) {
+    .image-content {
+        // On very small screens, use almost full width
+        width: 95%;
+    }
+}
+
+@media (min-width: @breakpoint-sm) and (max-width: @breakpoint-md) {
+    .image-content {
+        // On small to medium screens, use 80% width
+        width: 80%;
+    }
+}
+
+@media (min-width: @breakpoint-md) {
+    .image-content {
+        // On medium and larger screens, use 60% width
+        width: 60%;
+    }
+} 

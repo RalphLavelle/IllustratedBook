@@ -1,0 +1,33 @@
+// Index page specific styles
+// This file contains styles that are specific to the Index page
+// It will be compiled separately from the main styles
+
+// Import variables for consistency
+@import 'variables.less';
+
+// Index page specific variables
+@index-spacing: 2rem;
+@index-max-width: 1200px;
+
+// Main container styles
+.index-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: @index-spacing;
+    max-width: @index-max-width;
+    margin: 0 auto;
+    padding: @index-spacing;
+}
+
+// Responsive grid layout
+@media (min-width: 768px) {
+    .index-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .index-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+} 

@@ -1,38 +1,29 @@
-@page "/pages"
+@page "/"
 @model IndexModel
 
-<h1>The Illustrated Book</h1>
-
-<div class="text-center mb-4">
-    <img src="~/images/boy.jpg" alt="Boy illustration" class="img-fluid" style="max-width: 400px;" />
-</div>
-
-<h2>Example Book</h2>
-<a asp-page="/Books/Details" asp-route-bookId="ExampleBook">Read the Example Book</a>
-<hr />
-
-<h2>Books in the razor pages</h2>
-@foreach (Book b in Model.Books)
-{
-    <div class="row">
-        <div class="col-md-9">
-            <h3>@b.Title</h3>
+<div class="index-container">
+    <section class="hero">
+        <h1>The Illustrated Book</h1>
+        <div class="hero-image">
+            <div class="image-container">
+                <img class="image-content" src="~/images/boy.jpg" alt="Boy illustration" />
+            </div>
         </div>
-    </div>
+    </section>
 
-    <form method="get" asp-page="Index">
-        <label for="selectedBook">Select a book:</label>
-        <select name="selectedBook" asp-items="@Model.Books.Select(b => new SelectListItem { Text = b.Title, Value = b.Title })"></select>
-        <button type="submit">Select</button>
-    </form>
-}
+    <section class="books-section">
+        <h2>Available Books</h2>
+        <div class="books-grid">
+            <component type="typeof(IllustratedBook.Blazor.BookList)" render-mode="Server" />
+        </div>
+    </section>
+</div>
 
 @functions {
     public class IndexModel : PageModel
     {
         private DataContext context;
         public IEnumerable<Book> Books { get; set; } = Enumerable.Empty<Book>();
-
         public IndexModel(DataContext ctx)
         {
             context = ctx;
@@ -40,7 +31,6 @@
 
         [FromQuery]
         public string? SelectedBook { get; set; } = string.Empty;
-
         public void OnGet()
         {
             Books = context.Books.OrderBy(b => b.Title).ToList();

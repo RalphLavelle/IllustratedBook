@@ -1,13 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <meta name="viewport" content="width=device-width" />
-        <title>@ViewBag.Title</title>        
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewBag.Title - The Illustrated Book</title>
         <base href="~/" />
+        <link rel="stylesheet" href="~/css/styles.css" />
+        @if (ViewContext.RouteData.Values["page"]?.ToString() == "/Pages/Index")
+        {
+            <link rel="stylesheet" href="~/css/index.css" />
+        }
     </head>
     <body>
-        <h1>Pages/_Layout.cshtml</h1>
-        @RenderBody()
+        <header>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/pages/blazor">Blazor Demo</a>
+            </nav>
+        </header>
+
+        <main>
+            @RenderBody()
+        </main>
+
+        <footer>
+            <p>&copy; @DateTime.Now.Year - The Illustrated Book</p>
+        </footer>
+
         <script src="_framework/blazor.server.js"></script>
     </body>
 </html>

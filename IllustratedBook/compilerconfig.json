@@ -1,0 +1,22 @@
+[
+  {
+    "outputFile": "wwwroot/css/styles.css",
+    "inputFile": "wwwroot/less/styles.less",
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "includeInProject": true,
+    "sourceMap": true
+  },
+  {
+    "outputFile": "wwwroot/css/index.css",
+    "inputFile": "wwwroot/less/index.less",
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "includeInProject": true,
+    "sourceMap": true
+  }
+] 

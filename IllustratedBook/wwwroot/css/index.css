@@ -1,0 +1,25 @@
+﻿@font-face {
+  font-family: "DancingScript";
+  font-stretch: 50;
+  font-weight: 50;
+  src: url("../public/fonts/DancingScript-Regular.ttf") format("truetype");
+}
+.index-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+@media (min-width: 768px) {
+  .index-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .index-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInZhcmlhYmxlcy5sZXNzIiwiaW5kZXgubGVzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFZQTtFQUNJLGFBQWEsZUFBYjtFQUNBLGdCQUFBO0VBQ0EsZUFBQTtFQUNBLFNBQVMsNkNBQTZDLE9BQU8sV0FBN0Q7O0FDSko7RUFDSSxhQUFBO0VBQ0EsMEJBQUE7RUFDQSxTQUFBO0VBQ0EsaUJBQUE7RUFDQSxjQUFBO0VBQ0EsYUFBQTs7QUFJSixRQUEwQjtFQUN0QjtJQUNJLHVCQUF1QixjQUF2Qjs7O0FBSVIsUUFBMkI7RUFDdkI7SUFDSSx1QkFBdUIsY0FBdkIifQ== */

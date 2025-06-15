@@ -18,27 +18,9 @@
     </tbody>
 </table>
 
-<div>
-    <label for="book">Select a book:</label>
-    <select name="book" @bind="SelectedBook">
-        <option disabled selected value="">Select a book</option>
-        @foreach (Book b in Books)
-        {
-            <option value="@b.BookId">@b.Title</option>
-        }
-    </select>
-</div>
-
-<button @onclick="IncrementCounter">Counter @Counter</button>
-
 @code {
     [Inject]
     public DataContext? DataContext { get; set; }
-    public int Counter { get; set; } = 1;
     public IEnumerable<Book>? Books => DataContext?.Books;
     public string SelectedBook { get; set; } = "";
-
-    public void IncrementCounter(MouseEventArgs e) {
-        Counter++;
-    }
 }
