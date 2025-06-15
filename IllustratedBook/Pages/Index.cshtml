@@ -3,6 +3,14 @@
 
 <h1>The Illustrated Book</h1>
 
+<div class="text-center mb-4">
+    <img src="~/images/boy.jpg" alt="Boy illustration" class="img-fluid" style="max-width: 400px;" />
+</div>
+
+<h2>Example Book</h2>
+<a asp-page="/Books/Details" asp-route-bookId="ExampleBook">Read the Example Book</a>
+<hr />
+
 <h2>Books in the razor pages</h2>
 @foreach (Book b in Model.Books)
 {

@@ -1,0 +1,18 @@
+@page "/books/{bookId}/chapters/{chapterId}/pages/{pageId}"
+@model IllustratedBook.Pages.Books.BookPageModel
+
+@if (Model.Page != null)
+{
+    <div>
+        @foreach (var paragraph in Model.Page)
+        {
+            @Html.Raw(paragraph)
+        }
+    </div>
+    <hr />
+    <a asp-page="./Chapter" asp-route-bookId="@Model.BookId" asp-route-chapterId="@Model.ChapterId">Back to Pages</a>
+}
+else
+{
+    <h1>Page not found</h1>
+} 

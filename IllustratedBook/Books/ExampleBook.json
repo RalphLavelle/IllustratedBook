@@ -1,0 +1,28 @@
+{
+  "title": "Example Book",
+  "published": "2023-10-27T10:00:00Z",
+  "chapters": [
+    {
+      "index": 0,
+      "title": "Chapter 1: The Beginning",
+      "pages": [
+        [
+          "<p>This is the first page of the first chapter.</p>",
+          "<p>It has two paragraphs.</p>"
+        ],
+        [
+          "<p>This is the second page of the first chapter.</p>"
+        ]
+      ]
+    },
+    {
+      "index": 1,
+      "title": "Chapter 2: The Middle",
+      "pages": [
+        [
+          "<p>This is the first page of the second chapter.</p>"
+        ]
+      ]
+    }
+  ]
+} 

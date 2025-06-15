@@ -1,0 +1,24 @@
+@page "/books/{bookId}/chapters/{chapterId}"
+@model IllustratedBook.Pages.Books.ChapterModel
+
+@if (Model.Chapter != null)
+{
+    <h1>@Model.Chapter.Title</h1>
+    
+    <h2>Pages</h2>
+    <ul>
+        @for (int i = 0; i < Model.Chapter.Pages.Count; i++)
+        {
+            int pageId = i;
+            <li>
+                <a asp-page="./BookPage" asp-route-bookId="@Model.BookId" asp-route-chapterId="@Model.ChapterId" asp-route-pageId="@pageId">Page @(pageId + 1)</a>
+            </li>
+        }
+    </ul>
+    
+    <a asp-page="./Details" asp-route-bookId="@Model.BookId">Back to Chapters</a>
+}
+else
+{
+    <h1>Chapter not found</h1>
+} 

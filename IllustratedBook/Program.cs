@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using IllustratedBook.Models;
+using IllustratedBook.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<DataContext>(options => {
         builder.Configuration.GetConnectionString("DefaultConnection"));
     options.EnableSensitiveDataLogging();
 });
+builder.Services.AddScoped<BookService>();
 
 var app = builder.Build();
 

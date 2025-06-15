@@ -1,0 +1,22 @@
+@page "/books/{bookId}"
+@model IllustratedBook.Pages.Books.DetailsModel
+
+@if (Model.Book != null)
+{
+    <h1>@Model.Book.Title</h1>
+    <p>Published: @Model.Book.Published.ToShortDateString()</p>
+    
+    <h2>Chapters</h2>
+    <ul>
+        @foreach (var chapter in Model.Book.Chapters)
+        {
+            <li>
+                <a asp-page="./Chapter" asp-route-bookId="@Model.BookId" asp-route-chapterId="@chapter.Index">@chapter.Title</a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <h1>Book not found</h1>
+} 
