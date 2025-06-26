@@ -1,4 +1,4 @@
-@page "/books/{bookId}"
+@page "/books/{bookId}/{bookSlug}"
 @model IllustratedBook.Pages.Books.DetailsModel
 
 @if (Model.Book != null)
@@ -10,8 +10,11 @@
     <ul>
         @foreach (var chapter in Model.Book.Chapters)
         {
+            int chapterId = chapter.Index + 1;
             <li>
-                <a asp-page="./Chapter" asp-route-bookId="@Model.BookId" asp-route-chapterId="@chapter.Index">@chapter.Title</a>
+                <a asp-page="./Chapter" asp-route-bookId="@Model.BookId" asp-route-chapterId="@chapterId">
+                @chapter.Title
+                </a>
             </li>
         }
     </ul>

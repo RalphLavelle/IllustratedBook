@@ -1,22 +1,24 @@
 <h3>BookList Blazor component</h3>
 
-<table>
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>AuthorName</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (Book b in Books)
-        {
-            <tr>
-                <td>@b.Title</td>
-                <td>@b.AuthorName</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<style>
+    .book-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .book-link:hover {
+        text-decoration: underline;
+        color: #0056b3;
+    }
+</style>
+
+<ul>
+    @foreach (Book b in Books)
+    {
+        <li>
+            <a href="/books/@b.BookId/@b.Slug" class="book-link">@b.Title</a>, @b.AuthorName
+        </li>
+    }
+</ul>s
 
 @code {
     [Inject]

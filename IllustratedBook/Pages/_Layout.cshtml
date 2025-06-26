@@ -3,9 +3,10 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>@ViewBag.Title - The Illustrated Book</title>
+        <title>The Illustrated Book</title>
         <base href="~/" />
         <link rel="stylesheet" href="~/css/styles.css" />
+        <link rel="icon" href="~/favicon.png" />
         @if (ViewContext.RouteData.Values["page"]?.ToString() == "/Pages/Index")
         {
             <link rel="stylesheet" href="~/css/index.css" />
