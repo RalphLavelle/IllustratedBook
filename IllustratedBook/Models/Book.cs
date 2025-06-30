@@ -6,7 +6,6 @@ namespace IllustratedBook.Models
     {
         public int BookId { get; set; }
         public string? Title { get; set; }
-        public string? Slug { get; set; }
         public string? AuthorName { get; set; }
         public User? Author { get; set; }
         public DateTime CreatedAt { get; set; }

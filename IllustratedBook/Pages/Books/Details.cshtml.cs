@@ -1,5 +1,5 @@
 using IllustratedBook.Services;
-using IllustratedBook.ViewModels;
+using IllustratedBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -14,16 +14,33 @@ namespace IllustratedBook.Pages.Books
             _bookService = bookService;
         }
 
-        public BookViewModel? Book { get; set; }
+        public Book? Book { get; set; }
+        public IEnumerable<Section>? Sections { get; set; }
         
         [FromRoute]
-        public string? BookId { get; set; }
+        public int BookId { get; set; }
 
-        public void OnGet()
+        [FromRoute]
+        public string? BookSlug { get; set; }
+
+        public async Task OnGetAsync()
         {
-            if (!string.IsNullOrEmpty(BookId))
+            // Get the book by ID
+            Book = await _bookService.GetBookByIdAsync(BookId);
+            
+            // Verify the slug matches (for SEO and security)
+            if (Book != null)
             {
-                Book = _bookService.GetBook(BookId);
+                var generatedSlug = _bookService.GenerateSlug(Book.Title ?? "");
+                if (generatedSlug != BookSlug)
+                {
+                    // Redirect to the correct URL if slug doesn't match
+                    RedirectToPage(new { bookId = BookId, bookSlug = generatedSlug });
+                    return;
+                }
+                
+                // Get the sections (chapters) for this book
+                Sections = await _bookService.GetBookSectionsAsync(BookId);
             }
         }
     }

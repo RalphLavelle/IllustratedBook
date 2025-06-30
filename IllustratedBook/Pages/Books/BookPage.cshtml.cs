@@ -1,8 +1,8 @@
 using IllustratedBook.Services;
-using IllustratedBook.ViewModels;
+using IllustratedBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Linq;
+using System.Text.Json;
 
 namespace IllustratedBook.Pages.Books
 {
@@ -18,23 +18,51 @@ namespace IllustratedBook.Pages.Books
         public List<string>? Page { get; set; }
 
         [FromRoute]
-        public string? BookId { get; set; }
+        public int BookId { get; set; }
+
+        [FromRoute]
+        public string? BookSlug { get; set; }
         
         [FromRoute]
         public int ChapterId { get; set; }
 
         [FromRoute]
+        public string? ChapterSlug { get; set; }
+
+        [FromRoute]
         public int PageId { get; set; }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            if (!string.IsNullOrEmpty(BookId))
+            // Get the section (chapter) by ID
+            var section = await _bookService.GetSectionByIdAsync(ChapterId);
+            
+            // Verify the slugs match and the section belongs to the correct book
+            if (section != null && section.BookId == BookId)
             {
-                var book = _bookService.GetBook(BookId);
-                var chapter = book?.Chapters.FirstOrDefault(c => c.Index == ChapterId);
-                if (chapter != null && PageId < chapter.Pages.Count)
+                var generatedChapterSlug = _bookService.GenerateSlug(section.Title);
+                if (generatedChapterSlug == ChapterSlug)
                 {
-                    Page = chapter.Pages[PageId];
+                    // Parse the content as pages if it exists
+                    if (!string.IsNullOrEmpty(section.Content))
+                    {
+                        try
+                        {
+                            var pages = JsonSerializer.Deserialize<List<List<string>>>(section.Content);
+                            if (pages != null && PageId < pages.Count)
+                            {
+                                Page = pages[PageId];
+                            }
+                        }
+                        catch
+                        {
+                            // If parsing fails and it's the first page, use the content as is
+                            if (PageId == 0)
+                            {
+                                Page = new List<string> { section.Content };
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -1,7 +1,7 @@
-@page "/books/{bookId}/chapters/{chapterId}/pages/{pageId}"
+@page "/books/{bookId:int}/{bookSlug}/chapters/{chapterId:int}/{chapterSlug}/pages/{pageId:int}"
 @model IllustratedBook.Pages.Books.BookPageModel
 
-@if (Model.Page != null)
+@if (Model.Page != null && Model.Page.Any())
 {
     <div>
         @foreach (var paragraph in Model.Page)
@@ -10,7 +10,11 @@
         }
     </div>
     <hr />
-    <a asp-page="./Chapter" asp-route-bookId="@Model.BookId" asp-route-chapterId="@Model.ChapterId">Back to Pages</a>
+    <a asp-page="./Chapter" 
+       asp-route-bookId="@Model.BookId" 
+       asp-route-bookSlug="@Model.BookSlug"
+       asp-route-chapterId="@Model.ChapterId" 
+       asp-route-chapterSlug="@Model.ChapterSlug">Back to Pages</a>
 }
 else
 {

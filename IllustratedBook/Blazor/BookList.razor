@@ -1,28 +1,35 @@
+@using IllustratedBook.Services
+
 <h3>BookList Blazor component</h3>
 
-<style>
-    .book-link {
-        color: #007bff;
-        text-decoration: none;
-    }
-    .book-link:hover {
-        text-decoration: underline;
-        color: #0056b3;
-    }
-</style>
-
-<ul>
-    @foreach (Book b in Books)
-    {
-        <li>
-            <a href="/books/@b.BookId/@b.Slug" class="book-link">@b.Title</a>, @b.AuthorName
-        </li>
-    }
-</ul>s
+@if (Books != null && Books.Any())
+{
+    <ul>
+        @foreach (Book b in Books)
+        {
+            <li>
+                <a href="/books/@b.BookId/@(BookService?.GenerateSlug(b.Title ?? "") ?? "")">@b.Title</a>, @b.AuthorName
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No books available.</p>
+}
 
 @code {
     [Inject]
-    public DataContext? DataContext { get; set; }
-    public IEnumerable<Book>? Books => DataContext?.Books;
+    public BookService? BookService { get; set; }
+    
+    public IEnumerable<Book> Books { get; set; } = Enumerable.Empty<Book>();
     public string SelectedBook { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (BookService != null)
+        {
+            Books = await BookService.GetAllBooksAsync();
+        }
+    }
 }

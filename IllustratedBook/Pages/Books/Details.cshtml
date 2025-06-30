@@ -1,23 +1,35 @@
-@page "/books/{bookId}/{bookSlug}"
+@page "/books/{bookId:int}/{bookSlug}"
 @model IllustratedBook.Pages.Books.DetailsModel
+@inject IllustratedBook.Services.BookService BookService
 
 @if (Model.Book != null)
 {
     <h1>@Model.Book.Title</h1>
-    <p>Published: @Model.Book.Published.ToShortDateString()</p>
+    <p>Author: @Model.Book.AuthorName</p>
+    <p>Created: @Model.Book.CreatedAt.ToShortDateString()</p>
     
     <h2>Chapters</h2>
-    <ul>
-        @foreach (var chapter in Model.Book.Chapters)
-        {
-            int chapterId = chapter.Index + 1;
-            <li>
-                <a asp-page="./Chapter" asp-route-bookId="@Model.BookId" asp-route-chapterId="@chapterId">
-                @chapter.Title
-                </a>
-            </li>
-        }
-    </ul>
+    @if (Model.Sections != null && Model.Sections.Any())
+    {
+        <ul>
+            @foreach (var chapter in Model.Sections)
+            {
+                <li>
+                    <a asp-page="./Chapter" 
+                       asp-route-bookId="@Model.BookId" 
+                       asp-route-bookSlug="@Model.BookSlug"
+                       asp-route-chapterId="@chapter.SectionId" 
+                       asp-route-chapterSlug="@BookService.GenerateSlug(chapter.Title)">
+                        @chapter.Title
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No chapters available for this book.</p>
+    }
 }
 else
 {

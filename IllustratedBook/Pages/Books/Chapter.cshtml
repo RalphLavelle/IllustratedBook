@@ -1,23 +1,35 @@
-@page "/books/{bookId}/chapters/{chapterId}"
+@page "/books/{bookId:int}/{bookSlug}/chapters/{chapterId:int}/{chapterSlug}"
 @model IllustratedBook.Pages.Books.ChapterModel
 
-@if (Model.Chapter != null)
+@if (Model.Section != null)
 {
-    <h1>@Model.Chapter.Title</h1>
+    <h1>@Model.Section.Title</h1>
     
     <h2>Pages</h2>
-    <ul>
-        @for (int i = 0; i < Model.Chapter.Pages.Count; i++)
-        {
-            int pageId = i;
-            int chapterId = Model.ChapterId + 1;
-            <li>
-                <a asp-page="./BookPage" asp-route-bookId="@Model.BookId" asp-route-chapterId="@chapterId" asp-route-pageId="@pageId">Page @(pageId + 1)</a>
-            </li>
-        }
-    </ul>
+    @if (Model.Pages != null && Model.Pages.Any())
+    {
+        <ul>
+            @for (int i = 0; i < Model.Pages.Count; i++)
+            {
+                <li>
+                    <a asp-page="./BookPage" 
+                       asp-route-bookId="@Model.BookId" 
+                       asp-route-bookSlug="@Model.BookSlug"
+                       asp-route-chapterId="@Model.ChapterId" 
+                       asp-route-chapterSlug="@Model.ChapterSlug"
+                       asp-route-pageId="@i">Page @(i + 1)</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No pages available for this chapter.</p>
+    }
     
-    <a asp-page="./Details" asp-route-bookId="@Model.BookId">Back to Chapters</a>
+    <a asp-page="./Details" 
+       asp-route-bookId="@Model.BookId" 
+       asp-route-bookSlug="@Model.BookSlug">Back to Chapters</a>
 }
 else
 {

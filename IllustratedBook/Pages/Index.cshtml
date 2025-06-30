@@ -22,18 +22,13 @@
 @functions {
     public class IndexModel : PageModel
     {
-        private DataContext context;
-        public IEnumerable<Book> Books { get; set; } = Enumerable.Empty<Book>();
-        public IndexModel(DataContext ctx)
-        {
-            context = ctx;
-        }
-
         [FromQuery]
         public string? SelectedBook { get; set; } = string.Empty;
+        
         public void OnGet()
         {
-            Books = context.Books.OrderBy(b => b.Title).ToList();
+            // The BookList component now handles its own data loading
+            // No need to load books here anymore
         }
     }
 }
