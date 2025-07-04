@@ -1,0 +1,136 @@
+@page
+@model IllustratedBook.Pages.ChatTestModel
+@{
+    ViewData["Title"] = "Chat Service Test";
+}
+
+<div class="container mt-4">
+    <h1>Chat Service Test</h1>
+    <p class="lead">Test the OpenAI-powered prompt generation service for the Flux Dev model.</p>
+
+    <!-- Connection Test Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Connection Test</h5>
+        </div>
+        <div class="card-body">
+            <p>Test if the service can connect to OpenAI API:</p>
+            <form method="post" asp-page-handler="TestConnection">
+                <button type="submit" class="btn btn-primary">Test Connection</button>
+            </form>
+            
+            @if (Model.ConnectionTestResult.HasValue)
+            {
+                <div class="mt-3">
+                    @if (Model.ConnectionTestResult.Value)
+                    {
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Connection successful! The service is working properly.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Connection failed. Please check your API key and internet connection.
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Prompt Generation Section -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Generate Flux Prompt</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="GeneratePrompt">
+                <div class="mb-3">
+                    <label for="inputText" class="form-label">Enter your text:</label>
+                    <textarea 
+                        id="inputText" 
+                        name="InputText" 
+                        class="form-control" 
+                        rows="4" 
+                        placeholder="Enter the text you want to convert into an image prompt..."
+                        required>@Model.InputText</textarea>
+                    <div class="form-text">
+                        This text will be used to generate a detailed prompt for the Flux Dev image generation model.
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-magic"></i> Generate Prompt
+                </button>
+            </form>
+
+            @if (!string.IsNullOrEmpty(Model.GeneratedPrompt))
+            {
+                <div class="mt-4">
+                    <h6>Generated Prompt:</h6>
+                    <div class="alert alert-info">
+                        <pre class="mb-0">@Model.GeneratedPrompt</pre>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="copyToClipboard()">
+                        <i class="fas fa-copy"></i> Copy to Clipboard
+                    </button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="mt-4">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> @Model.ErrorMessage
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Instructions Section -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>How It Works</h5>
+        </div>
+        <div class="card-body">
+            <p>This service uses OpenAI's API to generate detailed prompts for the Flux Dev image generation model. Here's what happens:</p>
+            <ol>
+                <li>You provide text describing what you want to see in an image</li>
+                <li>The service sends your text to OpenAI with specific instructions</li>
+                <li>OpenAI generates a detailed prompt optimized for the Flux Dev model</li>
+                <li>The generated prompt includes specifications for:
+                    <ul>
+                        <li>Photorealistic style</li>
+                        <li>Odd camera angles</li>
+                        <li>High dynamic range</li>
+                        <li>Very colorful appearance</li>
+                        <li>Hasselblad H6D-400c medium format camera</li>
+                        <li>Carl Zeiss Planar 80mm f/2.8 lens</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard() {
+        const promptText = document.querySelector('.alert-info pre').textContent;
+        navigator.clipboard.writeText(promptText).then(function() {
+            // Show a temporary success message
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 2000);
+        });
+    }
+</script> 

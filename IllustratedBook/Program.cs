@@ -13,7 +13,13 @@ builder.Services.AddDbContext<DataContext>(options => {
         builder.Configuration.GetConnectionString("DefaultConnection"));
     options.EnableSensitiveDataLogging();
 });
+
+// Register HTTP client for external API calls
+builder.Services.AddHttpClient();
+
+// Register application services
 builder.Services.AddScoped<BookService>();
+builder.Services.AddScoped<ChatService>();
 
 var app = builder.Build();
 
