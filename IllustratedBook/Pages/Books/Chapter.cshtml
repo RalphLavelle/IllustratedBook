@@ -3,7 +3,7 @@
 
 @if (Model.Section != null)
 {
-    <h1>@Model.Section.Title</h1>
+    <h1>Chapter @Model.ChapterId: @Model.Section.Title</h1>
     
     <h2>Pages</h2>
     @if (Model.Pages != null && Model.Pages.Any())
@@ -17,7 +17,7 @@
                        asp-route-bookSlug="@Model.BookSlug"
                        asp-route-chapterId="@Model.ChapterId" 
                        asp-route-chapterSlug="@Model.ChapterSlug"
-                       asp-route-pageId="@i">Page @(i + 1)</a>
+                       asp-route-pageId="@(i + 1)">Page @(i + 1)</a>
                 </li>
             }
         </ul>
@@ -27,9 +27,9 @@
         <p>No pages available for this chapter.</p>
     }
     
-    <a asp-page="./Details" 
+    <p><a asp-page="./Details" 
        asp-route-bookId="@Model.BookId" 
-       asp-route-bookSlug="@Model.BookSlug">Back to Chapters</a>
+       asp-route-bookSlug="@Model.BookSlug">Back to Chapters</a></p>
 }
 else
 {

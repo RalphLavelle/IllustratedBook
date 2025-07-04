@@ -1,5 +1,6 @@
 using IllustratedBook.Services;
 using IllustratedBook.Models;
+using IllustratedBook.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -16,6 +17,7 @@ namespace IllustratedBook.Pages.Books
 
         public Book? Book { get; set; }
         public IEnumerable<Section>? Sections { get; set; }
+        public BookViewModel? JsonBook { get; set; }
         
         [FromRoute]
         public int BookId { get; set; }
@@ -25,8 +27,11 @@ namespace IllustratedBook.Pages.Books
 
         public async Task OnGetAsync()
         {
-            // Get the book by ID
+            // Get the book by ID from database
             Book = await _bookService.GetBookByIdAsync(BookId);
+            
+            // Also try to get the JSON version
+            JsonBook = _bookService.GetBookFromJson(BookId);
             
             // Verify the slug matches (for SEO and security)
             if (Book != null)
@@ -40,6 +45,7 @@ namespace IllustratedBook.Pages.Books
                 }
                 
                 // Get the sections (chapters) for this book
+                // This will now try JSON first, then fall back to database
                 Sections = await _bookService.GetBookSectionsAsync(BookId);
             }
         }

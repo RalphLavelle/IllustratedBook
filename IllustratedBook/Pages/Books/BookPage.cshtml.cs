@@ -1,5 +1,6 @@
 using IllustratedBook.Services;
 using IllustratedBook.Models;
+using IllustratedBook.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
@@ -15,7 +16,8 @@ namespace IllustratedBook.Pages.Books
             _bookService = bookService;
         }
 
-        public List<string>? Page { get; set; }
+        public List<string>? CurrentPage { get; set; }
+        public ChapterViewModel? Chapter { get; set; }
 
         [FromRoute]
         public int BookId { get; set; }
@@ -34,32 +36,52 @@ namespace IllustratedBook.Pages.Books
 
         public async Task OnGetAsync()
         {
-            // Get the section (chapter) by ID
-            var section = await _bookService.GetSectionByIdAsync(ChapterId);
+            // First, try to get the chapter directly from JSON
+            var chapterIndex = ChapterId - 1; // Convert to 0-based index
+            Chapter = _bookService.GetChapterFromJson(BookId, chapterIndex);
             
-            // Verify the slugs match and the section belongs to the correct book
-            if (section != null && section.BookId == BookId)
+            if (Chapter != null)
             {
-                var generatedChapterSlug = _bookService.GenerateSlug(section.Title);
+                // Verify the slug matches
+                var generatedChapterSlug = _bookService.GenerateSlug(Chapter.Title ?? "");
                 if (generatedChapterSlug == ChapterSlug)
                 {
-                    // Parse the content as pages if it exists
-                    if (!string.IsNullOrEmpty(section.Content))
+                    // Get the specific page from the chapter
+                    if (PageId <= Chapter.Pages.Count)
                     {
-                        try
+                        CurrentPage = Chapter.Pages[PageId - 1];
+                    }
+                }
+            }
+            else
+            {
+                // Fallback to database method if JSON doesn't exist
+                var section = await _bookService.GetSectionByIdAsync(ChapterId);
+                
+                // Verify the slugs match and the section belongs to the correct book
+                if (section != null && section.BookId == BookId)
+                {
+                    var generatedChapterSlug = _bookService.GenerateSlug(section.Title);
+                    if (generatedChapterSlug == ChapterSlug)
+                    {
+                        // Parse the content as pages if it exists
+                        if (!string.IsNullOrEmpty(section.Content))
                         {
-                            var pages = JsonSerializer.Deserialize<List<List<string>>>(section.Content);
-                            if (pages != null && PageId < pages.Count)
+                            try
                             {
-                                Page = pages[PageId];
+                                var pages = JsonSerializer.Deserialize<List<List<string>>>(section.Content);
+                                if (pages != null && PageId <= pages.Count)
+                                {
+                                    CurrentPage = pages[PageId - 1];
+                                }
                             }
-                        }
-                        catch
-                        {
-                            // If parsing fails and it's the first page, use the content as is
-                            if (PageId == 0)
+                            catch
                             {
-                                Page = new List<string> { section.Content };
+                                // If parsing fails and it's the first page, use the content as is
+                                if (PageId == 1)
+                                {
+                                    CurrentPage = new List<string> { section.Content };
+                                }
                             }
                         }
                     }

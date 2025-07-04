@@ -3,7 +3,7 @@
   "title": "My First Illustrated Book",
   "chapters": [
     {
-      "title": "Chapter 1: The Beginning",
+      "title": "The Beginning",
       "pages": [
         [
           "<p>This is the first page of the first chapter.</p>",
@@ -15,7 +15,7 @@
       ]
     },
     {
-      "title": "Chapter 2: The Middle",
+      "title": "The Middle",
       "pages": [
         [
           "<p>This is the first page of the second chapter.</p>"
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "title": "Chapter 3: The End",
+      "title": "The End",
       "pages": [
         [
           "<p>They all lived happily ever after.</p>"

@@ -1,10 +1,11 @@
 @page "/books/{bookId:int}/{bookSlug}/chapters/{chapterId:int}/{chapterSlug}/pages/{pageId:int}"
 @model IllustratedBook.Pages.Books.BookPageModel
 
-@if (Model.Page != null && Model.Page.Any())
+@if (Model.CurrentPage != null && Model.CurrentPage.Any())
 {
+    <h3>Page @Model.PageId</h3>
     <div>
-        @foreach (var paragraph in Model.Page)
+        @foreach (var paragraph in Model.CurrentPage)
         {
             @Html.Raw(paragraph)
         }
