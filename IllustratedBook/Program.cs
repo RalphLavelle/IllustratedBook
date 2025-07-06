@@ -20,6 +20,7 @@ builder.Services.AddHttpClient();
 // Register application services
 builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<ChatService>();
+builder.Services.AddScoped<ImageService>();
 
 var app = builder.Build();
 

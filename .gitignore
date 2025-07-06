@@ -1,6 +1,3 @@
-**/bin/
-**/obj/
-
 /IllustratedBook/**/bin/
 /IllustratedBook/**/obj/
-appsettings.json
+IllustratedBook/_appsettings.json

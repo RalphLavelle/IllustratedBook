@@ -1,24 +1,6 @@
 # The Illustrated Book
 
-## creation commands
-dotnet new globaljson --sdk-version 8.0.100
-dotnet new web --no-https --output IllustratedBook --framework net8.0
-dotnet new sln -o IllustratedBook
-dotnet sln IllustratedBook add IllustratedBook
+global.json has to be changed from env to env to match the installed .Net SDK
 
-cd IllustratedBook
-
-dotnet add package Microsoft.EntityFrameworkCore.Design --version 8.0.0
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 8.0.0
-
-# SQLServer Express 2022
-Server=localhost\SQLEXPRESS;Database=master;Trusted_Connection=True;
-
-# Seed data
-The app will be seeded with one book, written by one user. The book will have one chapter and three pages. The chapter and pages are the book's sections, and they form a self-joining relationship in the database.
-
-# EF migration cmds
-dotnet tool uninstall --global dotnet-ef
-dotnet tool install --global dotnet-ef --version 8.0.0
-dotnet ef migrations add Initial
-dotnet ef database update
+## appSettings
+Never check in any sensitive data in appSettings. Keep it all in _appSettings.json, which is ignored ny git, and copy the stuff into the appSettings.json file.

@@ -32,7 +32,6 @@ namespace IllustratedBook.Services
             
             // Set up HTTP client headers for OpenAI API
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
-            _httpClient.DefaultRequestHeaders.Add("Content-Type", "application/json");
         }
 
         /// <summary>

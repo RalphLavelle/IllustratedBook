@@ -4,20 +4,62 @@
 @if (Model.CurrentPage != null && Model.CurrentPage.Any())
 {
     <h3>Page @Model.PageId</h3>
-    <div>
+
+    <!-- Image generation section - now handled asynchronously -->
+    <div id="image-loading-container" class="image-generation-loading" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+        <p>Generating image for this page...</p>
+        <p class="loading-text">This may take a few moments. Please wait.</p>
+    </div>
+
+    <div id="image-container" class="generated-image" style="display: none;">
+        <!-- Generated image will be inserted here by JavaScript -->
+    </div>
+
+    <div id="image-error-container" class="image-generation-error" style="display: none;">
+        <!-- Error messages will be inserted here by JavaScript -->
+    </div>
+
+    <!-- Display the page content immediately -->
+    <div class="page-content">
         @foreach (var paragraph in Model.CurrentPage)
         {
             @Html.Raw(paragraph)
         }
     </div>
+
     <hr />
     <a asp-page="./Chapter" 
        asp-route-bookId="@Model.BookId" 
        asp-route-bookSlug="@Model.BookSlug"
        asp-route-chapterId="@Model.ChapterId" 
        asp-route-chapterSlug="@Model.ChapterSlug">Back to Pages</a>
+
+    <!-- Anti-forgery token for AJAX requests -->
+    @Html.AntiForgeryToken()
+
+    <!-- JavaScript to handle async image generation -->
+    <script src="~/js/imageLoader.js"></script>
+    <script>
+        // Start image generation when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only start image generation if it's enabled (we'll check this via AJAX)
+            const generateImageUrl = '@Url.Page("", "GenerateImage")';
+            
+            // Start the async image generation process
+            if (window.imageLoader) {
+                window.imageLoader.startImageGeneration(
+                    generateImageUrl,
+                    'image-container',
+                    'image-loading-container'
+                );
+            }
+        });
+    </script>
 }
 else
 {
     <h1>Page not found</h1>
-} 
+}
