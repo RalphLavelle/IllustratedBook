@@ -1,5 +1,4 @@
 using IllustratedBook.Services;
-using IllustratedBook.Models;
 using IllustratedBook.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -109,8 +108,6 @@ namespace IllustratedBook.Pages.Books
             }
         }
 
-
-
         /// <summary>
         /// Handles asynchronous image generation via AJAX
         /// This method is called by JavaScript to generate images without blocking the page
@@ -170,6 +167,8 @@ namespace IllustratedBook.Pages.Books
 
                 // Generate a prompt using the ChatService
                 var prompt = await _chatService.GenerateFluxPromptAsync(pageText);
+
+                Console.WriteLine($"Prompt: {prompt}");
 
                 // Generate the image using the ImageService
                 return await _imageService.GenerateImageAsync(prompt);

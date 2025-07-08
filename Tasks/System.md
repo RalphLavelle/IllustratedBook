@@ -1,1 +1,1 @@
-Never place CSS or LESS directly in a component. Place it in the wwwroot/less folder, preferably in one of the existing  files if it's appropriate, and reference it in the component if it's not automatically being referenced. 
+Never place CSS or LESS directly in a component. Place it in the wwwroot/less folder, preferably in one of the existing  files if it's appropriate, and reference it in the component if it's not automatically being referenced. Don't try to compile the LESS to CSS - that happens at build time.

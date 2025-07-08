@@ -1,3 +1,4 @@
 /IllustratedBook/**/bin/
 /IllustratedBook/**/obj/
 IllustratedBook/_appsettings.json
+IllustratedBook/wwwroot/css/

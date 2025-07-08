@@ -1,26 +1,71 @@
-@page "/books/{bookId:int}/{bookSlug}/chapters/{chapterId:int}/{chapterSlug}"
+@page "/books/{bookId:int}/{bookSlug}/chapters/{chapterId:int}/{chapterSlug}/pages/{pageId:int?}"
 @model IllustratedBook.Pages.Books.ChapterModel
 
 @if (Model.Section != null)
 {
     <h1>Chapter @Model.ChapterId: @Model.Section.Title</h1>
     
-    <h2>Pages</h2>
+    <!-- Display current page content -->
+    @if (Model.CurrentPage != null && Model.CurrentPage.Any())
+    {
+        <div class="chapter-page">
+            <h2>Page @Model.CurrentPageNumber</h2>
+            
+            <!-- Image generation section - now handled asynchronously -->
+            <div id="image-loading-container" class="image-generation-loading" style="display: none;">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <p>Generating image...</p>
+            </div>
+
+            <div id="image-container" class="generated-image" style="display: none;">
+                <!-- Generated image will be inserted here by JavaScript -->
+            </div>
+
+            <div id="image-error-container" class="image-generation-error" style="display: none;">
+                <!-- Error messages will be inserted here by JavaScript -->
+            </div>
+
+            <!-- Display the current page content immediately -->
+            <div class="page-content">
+                @foreach (var paragraph in Model.CurrentPage)
+                {
+                    @Html.Raw(paragraph)
+                }
+            </div>
+        </div>
+    }
+    
+    <!-- Page navigation -->
     @if (Model.Pages != null && Model.Pages.Any())
     {
-        <ul>
-            @for (int i = 0; i < Model.Pages.Count; i++)
-            {
-                <li>
-                    <a asp-page="./BookPage" 
-                       asp-route-bookId="@Model.BookId" 
-                       asp-route-bookSlug="@Model.BookSlug"
-                       asp-route-chapterId="@Model.ChapterId" 
-                       asp-route-chapterSlug="@Model.ChapterSlug"
-                       asp-route-pageId="@(i + 1)">Page @(i + 1)</a>
-                </li>
-            }
-        </ul>
+        <div class="page-navigation-container">
+            <ul class="page-navigation">
+                @for (int i = 0; i < Model.Pages.Count; i++)
+                {
+                    var pageNumber = i + 1;
+                    var isCurrentPage = pageNumber == Model.CurrentPageNumber;
+                    
+                    <li class="@(isCurrentPage ? "current-page" : "")">
+                        @if (isCurrentPage)
+                        {
+                            <span class="page-link current">Page @pageNumber</span>
+                        }
+                        else
+                        {
+                            <a asp-page="./Chapter" 
+                               asp-route-bookId="@Model.BookId" 
+                               asp-route-bookSlug="@Model.BookSlug"
+                               asp-route-chapterId="@Model.ChapterId" 
+                               asp-route-chapterSlug="@Model.ChapterSlug"
+                               asp-route-pageId="@pageNumber"
+                               class="page-link">Page @pageNumber</a>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
     }
     else
     {
@@ -30,6 +75,25 @@
     <p><a asp-page="./Details" 
        asp-route-bookId="@Model.BookId" 
        asp-route-bookSlug="@Model.BookSlug">Back to Chapters</a></p>
+    
+    <!-- Anti-forgery token for AJAX requests -->
+    @Html.AntiForgeryToken()
+
+    <!-- JavaScript to handle async image generation for the current page -->
+    <script src="~/js/imageLoader.js"></script>
+    <script>
+        // Start image generation when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateImageUrl = '@Url.Page("", "GenerateImage")';
+            if (window.imageLoader) {
+                window.imageLoader.startImageGeneration(
+                    generateImageUrl,
+                    'image-container',
+                    'image-loading-container'
+                );
+            }
+        });
+    </script>
 }
 else
 {

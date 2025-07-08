@@ -1,13 +1,4 @@
-/**
- * Image Loader - Handles asynchronous image generation for book pages
- * This script allows the page content to load immediately while images generate in the background
- */
-
 class ImageLoader {
-    constructor() {
-        this.pollingInterval = 2000; // Check every 2 seconds
-        this.maxAttempts = 30; // Maximum 60 seconds of polling
-    }
 
     /**
      * Starts the image generation process for a specific page
@@ -38,8 +29,7 @@ class ImageLoader {
             const result = await response.json();
             
             if (result.success) {
-                // Start polling for the generated image
-                this.pollForImage(result.imageUrl, imageContainerId, loadingContainerId);
+                this.displayImage(result.imageUrl, imageContainerId, loadingContainerId);
             } else {
                 this.showError(imageContainerId, loadingContainerId, result.error || 'Failed to start image generation');
             }
@@ -47,42 +37,6 @@ class ImageLoader {
             console.error('Error starting image generation:', error);
             this.showError(imageContainerId, loadingContainerId, 'Failed to start image generation');
         }
-    }
-
-    /**
-     * Polls for the generated image until it's ready
-     * @param {string} imageUrl - The URL to check for the generated image
-     * @param {string} imageContainerId - The ID of the container to update
-     * @param {string} loadingContainerId - The ID of the loading container to hide
-     */
-    async pollForImage(imageUrl, imageContainerId, loadingContainerId) {
-        let attempts = 0;
-        
-        const poll = async () => {
-            attempts++;
-            
-            try {
-                const response = await fetch(imageUrl, { method: 'HEAD' });
-                
-                if (response.ok) {
-                    // Image is ready, display it
-                    this.displayImage(imageUrl, imageContainerId, loadingContainerId);
-                    return;
-                }
-            } catch (error) {
-                console.log('Image not ready yet, attempt:', attempts);
-            }
-            
-            // Continue polling if we haven't exceeded max attempts
-            if (attempts < this.maxAttempts) {
-                setTimeout(poll, this.pollingInterval);
-            } else {
-                this.showError(imageContainerId, loadingContainerId, 'Image generation timed out');
-            }
-        };
-        
-        // Start polling
-        poll();
     }
 
     /**
