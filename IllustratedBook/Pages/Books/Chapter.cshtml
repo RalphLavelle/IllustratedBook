@@ -85,6 +85,19 @@
         // Start image generation when the page loads
         document.addEventListener('DOMContentLoaded', function() {
             const generateImageUrl = '@Url.Page("", "GenerateImage")';
+            
+            // Save current page data to session storage for future use
+            if (window.imageLoader) {
+                const pageData = @Html.Raw(Json.Serialize(Model.CurrentPage));
+                window.imageLoader.savePageToSessionStorage(
+                    @Model.BookId, 
+                    @Model.ChapterId, 
+                    @Model.CurrentPageNumber, 
+                    pageData
+                );
+            }
+            
+            // Start image generation
             if (window.imageLoader) {
                 window.imageLoader.startImageGeneration(
                     generateImageUrl,

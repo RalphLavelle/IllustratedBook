@@ -2,21 +2,39 @@
 
 @if (Model.CurrentPage != null && Model.CurrentPage.Any())
 {
-    <!-- Image generation section - now handled asynchronously -->
-    <div id="image-loading-container" class="image-generation-loading" style="display: none;">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
+    <!-- Display existing image if available -->
+    @if (Model.ExistingImage != null)
+    {
+        <div id="image-container" class="generated-image">
+            <img src="@Model.ExistingImage.ImageUrl" alt="AI-generated illustration for this page" class="page-illustration" />
+            <div class="image-info">
+                <div class="cache-indicator">
+                    <span class="cache-badge">📁 Cached</span>
+                </div>
+                <div class="prompt-info">
+                    <small><strong>Prompt:</strong> @Model.ExistingImage.Prompt</small>
+                </div>
+            </div>
         </div>
-        <p>Generating image...</p>
-    </div>
+    }
+    else
+    {
+        <!-- Image generation section - now handled asynchronously -->
+        <div id="image-loading-container" class="image-generation-loading" style="display: none;">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+            <p>Generating image...</p>
+        </div>
 
-    <div id="image-container" class="generated-image" style="display: none;">
-        <!-- Generated image will be inserted here by JavaScript -->
-    </div>
+        <div id="image-container" class="generated-image" style="display: none;">
+            <!-- Generated image will be inserted here by JavaScript -->
+        </div>
 
-    <div id="image-error-container" class="image-generation-error" style="display: none;">
-        <!-- Error messages will be inserted here by JavaScript -->
-    </div>
+        <div id="image-error-container" class="image-generation-error" style="display: none;">
+            <!-- Error messages will be inserted here by JavaScript -->
+        </div>
+    }
 
     <!-- Display the page content immediately -->
     <div class="page-content">
@@ -32,15 +50,21 @@
     <!-- JavaScript to handle async image generation -->
     <script src="~/js/imageLoader.js"></script>
     <script>
-        // Start image generation when the page loads
+        // Start image generation when the page loads (only if no existing image)
         document.addEventListener('DOMContentLoaded', function() {
-            const generateImageUrl = '@Url.Page("", "GenerateImage")';
-            if (window.imageLoader) {
-                window.imageLoader.startImageGeneration(
-                    generateImageUrl,
-                    'image-container',
-                    'image-loading-container'
-                );
+            debugger;
+            @if (Model.ExistingImage == null)
+            {
+                <text>
+                const generateImageUrl = '@Url.Page("", "GenerateImage")';
+                if (window.imageLoader) {
+                    window.imageLoader.startImageGeneration(
+                        generateImageUrl,
+                        'image-container',
+                        'image-loading-container'
+                    );
+                }
+                </text>
             }
         });
     </script>

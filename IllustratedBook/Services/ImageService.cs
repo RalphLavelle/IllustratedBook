@@ -184,6 +184,24 @@ namespace IllustratedBook.Services
         }
 
         /// <summary>
+        /// Gets the name of the AI model being used
+        /// </summary>
+        /// <returns>The model name</returns>
+        public string GetModelName()
+        {
+            return _model;
+        }
+
+        /// <summary>
+        /// Gets the version of the AI model being used
+        /// </summary>
+        /// <returns>The model version</returns>
+        public string GetModelVersion()
+        {
+            return "c221b2b8ef527988fb59bf24a8b97c4561f1c671f73bd389f866bfb27c061316";
+        }
+
+        /// <summary>
         /// Test method to verify the service is working correctly
         /// </summary>
         /// <returns>True if the service can connect to Replicate successfully</returns>

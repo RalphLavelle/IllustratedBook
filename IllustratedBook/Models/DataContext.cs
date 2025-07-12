@@ -10,8 +10,9 @@ namespace IllustratedBook.Models
         public DbSet<Book> Books { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Section> Sections { get; set; }
+        public DbSet<Image> Images { get; set; }
 
-        /*protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
@@ -32,6 +33,19 @@ namespace IllustratedBook.Models
                 .WithMany()
                 .HasForeignKey(s => s.ParentId)
                 .OnDelete(DeleteBehavior.Restrict);
-        }*/
+
+            // Configure Image relationships with NO ACTION to avoid cascade issues
+            modelBuilder.Entity<Image>()
+                .HasOne(i => i.Book)
+                .WithMany()
+                .HasForeignKey(i => i.BookId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Image>()
+                .HasOne(i => i.Chapter)
+                .WithMany()
+                .HasForeignKey(i => i.ChapterId)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
     }
 } 

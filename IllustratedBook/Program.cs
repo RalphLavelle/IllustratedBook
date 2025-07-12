@@ -8,6 +8,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
+// Add session services for caching page data
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddDbContext<DataContext>(options => {
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -21,10 +30,14 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<BookService>();
 builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<ImageService>();
+builder.Services.AddScoped<ImageStorageService>();
 
 var app = builder.Build();
 
 app.UseStaticFiles();
+
+// Enable session middleware
+app.UseSession();
 
 app.MapControllers();
 app.MapControllerRoute("controllers", "controllers/{controller=Home}/{action=Index}/{id?}");
