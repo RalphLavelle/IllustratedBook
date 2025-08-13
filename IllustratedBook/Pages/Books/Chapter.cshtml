@@ -16,7 +16,7 @@
                 <div class="loading-spinner">
                     <div class="spinner"></div>
                 </div>
-                <p>Generating image...</p>
+                <p>Generating image inserted chapter comp...</p>
             </div>
 
             <div id="image-container" class="generated-image" style="display: none;">
@@ -84,6 +84,8 @@
     <script>
         // Start image generation when the page loads
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Chapter comp loaded');
+            debugger;
             const generateImageUrl = '@Url.Page("", "GenerateImage")';
             
             // Save current page data to session storage for future use

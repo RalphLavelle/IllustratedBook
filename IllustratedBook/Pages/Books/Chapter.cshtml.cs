@@ -32,13 +32,15 @@ namespace IllustratedBook.Pages.Books
         private readonly BookService _bookService;
         private readonly ChatService _chatService;
         private readonly ImageService _imageService;
+        private readonly ImageStorageService _imageStorageService;
         private readonly IConfiguration _configuration;
 
-        public ChapterModel(BookService bookService, ChatService chatService, ImageService imageService, IConfiguration configuration)
+        public ChapterModel(BookService bookService, ChatService chatService, ImageService imageService, ImageStorageService imageStorageService, IConfiguration configuration)
         {
             _bookService = bookService;
             _chatService = chatService;
             _imageService = imageService;
+            _imageStorageService = imageStorageService;
             _configuration = configuration;
         }
 
@@ -381,7 +383,21 @@ namespace IllustratedBook.Pages.Books
                     return new JsonResult(new { success = false, error = "Image generation is disabled" });
                 }
                 
-                // Generate the image
+                // First, check if an image already exists for this page
+                var existingImage = await _imageStorageService.GetExistingImageAsync(BookId, ChapterId, CurrentPageNumber);
+                
+                if (existingImage != null)
+                {
+                    // Return the existing image URL
+                    Console.WriteLine($"Using existing image for Book {BookId}, Chapter {ChapterId}, Page {CurrentPageNumber}");
+                    return new JsonResult(new { 
+                        success = true, 
+                        imageUrl = existingImage.ImageUrl,
+                        fromDatabase = true 
+                    });
+                }
+                
+                // Generate a new image if none exists
                 var imageUrl = await GenerateImageForPageAsync();
                 
                 if (!string.IsNullOrEmpty(imageUrl))
@@ -422,7 +438,47 @@ namespace IllustratedBook.Pages.Books
                 Console.WriteLine($"Prompt: {prompt}");
 
                 // Generate the image using the ImageService
-                return await _imageService.GenerateImageAsync(prompt);
+                var imageUrl = await _imageService.GenerateImageAsync(prompt);
+                
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    // Store the generated image in the database with metadata
+                    var modelName = _imageService.GetModelName();
+                    var modelVersion = _imageService.GetModelVersion();
+                    
+                    // Default settings for Flux model
+                    var width = 1024;
+                    var height = 1024;
+                    var inferenceSteps = 20;
+                    var guidanceScale = 7.5;
+                    var negativePrompt = "blurry, low quality, distorted, deformed";
+                    
+                    var saveSuccess = await _imageStorageService.SaveImageAsync(
+                        BookId,
+                        ChapterId,
+                        CurrentPageNumber,
+                        prompt,
+                        imageUrl,
+                        modelName,
+                        modelVersion,
+                        width,
+                        height,
+                        inferenceSteps,
+                        guidanceScale,
+                        negativePrompt
+                    );
+                    
+                    if (saveSuccess)
+                    {
+                        Console.WriteLine($"Image saved to database for Book {BookId}, Chapter {ChapterId}, Page {CurrentPageNumber}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Failed to save image to database for Book {BookId}, Chapter {ChapterId}, Page {CurrentPageNumber}");
+                    }
+                }
+                
+                return imageUrl;
             }
             catch (Exception ex)
             {

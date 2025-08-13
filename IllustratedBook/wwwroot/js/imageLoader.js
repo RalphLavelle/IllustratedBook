@@ -209,12 +209,15 @@ class ImageLoader {
                 img.style.opacity = '1';
             };
             
-            // Create image info container
-            const imageInfo = document.createElement('div');
-            imageInfo.className = 'image-info';
+            // Create image info container if needed
+            let imageInfo = null;
+            if (fromCache || prompt) {
+                imageInfo = document.createElement('div');
+                imageInfo.className = 'image-info';
+            }
             
             // Add cache indicator if image is from cache
-            if (fromCache) {
+            if (fromCache && imageInfo) {
                 const cacheIndicator = document.createElement('div');
                 cacheIndicator.className = 'cache-indicator';
                 cacheIndicator.innerHTML = '<span class="cache-badge">📁 Cached</span>';
@@ -222,7 +225,7 @@ class ImageLoader {
             }
             
             // Add prompt info if available
-            if (prompt) {
+            if (prompt && imageInfo) {
                 const promptInfo = document.createElement('div');
                 promptInfo.className = 'prompt-info';
                 promptInfo.innerHTML = `<small><strong>Prompt:</strong> ${prompt}</small>`;
@@ -231,7 +234,12 @@ class ImageLoader {
             
             imageContainer.innerHTML = '';
             imageContainer.appendChild(img);
-            imageContainer.appendChild(imageInfo);
+            
+            // Add image info if it exists
+            if (imageInfo) {
+                imageContainer.appendChild(imageInfo);
+            }
+            
             imageContainer.style.display = 'block';
         }
     }
