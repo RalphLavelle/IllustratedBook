@@ -40,50 +40,7 @@ namespace IllustratedBook.Models
                 context.Books.Add(book);
                 context.SaveChanges(); // Save book to get BookId
 
-                // Create Chapter (Section)
-                var chapter = new Section
-                {
-                    Title = "Chapter 1: The Beginning",
-                    CreatedAt = DateTime.UtcNow,
-                    Book = book,
-                    BookId = book.BookId,
-                    // ParentId will be 0 or null by default if it's a top-level section
-                };
-                context.Sections.Add(chapter);
-                context.SaveChanges(); // Save chapter to get SectionId
-
-                // Create Pages (Sections as children of the chapter)
-                var page1 = new Section
-                {
-                    Title = "Page 1",
-                    CreatedAt = DateTime.UtcNow,
-                    Book = book,
-                    BookId = book.BookId,
-                    ParentId = chapter.SectionId 
-                };
-                context.Sections.Add(page1);
-
-                var page2 = new Section
-                {
-                    Title = "Page 2",
-                    CreatedAt = DateTime.UtcNow,
-                    Book = book,
-                    BookId = book.BookId,
-                    ParentId = chapter.SectionId
-                };
-                context.Sections.Add(page2);
-
-                var page3 = new Section
-                {
-                    Title = "Page 3",
-                    CreatedAt = DateTime.UtcNow,
-                    Book = book,
-                    BookId = book.BookId,
-                    ParentId = chapter.SectionId
-                };
-                context.Sections.Add(page3);
-
-                context.SaveChanges();
+                // Sections table removed: no seeding of chapters/pages in DB
             }
         }
     }

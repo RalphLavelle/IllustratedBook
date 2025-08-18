@@ -18,8 +18,8 @@
                     <a asp-page="./Chapter" 
                        asp-route-bookId="@Model.BookId" 
                        asp-route-bookSlug="@Model.BookSlug"
-                       asp-route-chapterId="@chapter.SectionId" 
-                       asp-route-chapterSlug="@BookService.GenerateSlug(chapter.Title)"
+                       asp-route-chapterId="@chapter.Index" 
+                       asp-route-chapterSlug="@BookService.GenerateSlug(chapter.Title ?? "")"
                        asp-route-pageId="1">
                         @chapter.Title
                     </a>

@@ -69,30 +69,7 @@ namespace IllustratedBook.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("GeneratedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("GuidanceScale")
-                        .HasColumnType("float");
-
-                    b.Property<int>("Height")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("InferenceSteps")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModelVersion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NegativePrompt")
+                    b.Property<string>("Metadata")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PageNumber")
@@ -104,9 +81,6 @@ namespace IllustratedBook.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("int");
 
                     b.HasKey("ImageId");
 

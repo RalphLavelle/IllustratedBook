@@ -44,7 +44,7 @@ namespace IllustratedBook.Pages.Books
             _configuration = configuration;
         }
 
-        public Section? Section { get; set; }
+        public ChapterViewModel? Section { get; set; }
         public List<List<string>>? Pages { get; set; }
         public List<string>? CurrentPage { get; set; }
         public int CurrentPageNumber { get; set; } = 1;
@@ -205,16 +205,12 @@ namespace IllustratedBook.Pages.Books
                     Pages = Chapter.Pages;
                 }
                 
-                // Create a Section object for compatibility with existing views
-                var book = await _bookService.GetBookByIdAsync(BookId);
-                Section = new Section
+                // Create a ChapterViewModel for the view
+                Section = new ChapterViewModel
                 {
-                    SectionId = ChapterId,
-                    BookId = BookId,
+                    Index = ChapterId,
                     Title = Chapter?.Title ?? $"Chapter {ChapterId}",
-                    Content = JsonSerializer.Serialize(Chapter?.Pages ?? new List<List<string>>()),
-                    CreatedAt = DateTime.UtcNow,
-                    Book = book
+                    Pages = Chapter?.Pages ?? new List<List<string>>()
                 };
                 
                 return; // Exit early since we have cached data
@@ -241,19 +237,16 @@ namespace IllustratedBook.Pages.Books
                     SavePageToSessionStorage(BookId, ChapterId, CurrentPageNumber, CurrentPage);
                 }
                 
-                // Create a Section object for compatibility with existing views
-                var book = await _bookService.GetBookByIdAsync(BookId);
-                Section = new Section
+                // Create a ChapterViewModel for the view
+                Section = new ChapterViewModel
                 {
-                    SectionId = ChapterId,
-                    BookId = BookId,
+                    Index = ChapterId,
                     Title = Chapter.Title ?? $"Chapter {ChapterId}",
-                    Content = JsonSerializer.Serialize(Chapter.Pages ?? new List<List<string>>()),
-                    CreatedAt = DateTime.UtcNow,
-                    Book = book
+                    Pages = Chapter.Pages ?? new List<List<string>>()
                 };
                 
                 // Verify the slugs match
+                var book = await _bookService.GetBookByIdAsync(BookId);
                 if (book != null)
                 {
                     var generatedBookSlug = _bookService.GenerateSlug(book.Title ?? "");
@@ -272,64 +265,7 @@ namespace IllustratedBook.Pages.Books
                     }
                 }
             }
-            else
-            {
-                // Fallback to database method if JSON doesn't exist
-                Section = await _bookService.GetSectionByIdAsync(ChapterId);
-                
-                // Verify the slugs match and the section belongs to the correct book
-                if (Section != null)
-                {
-                    var generatedBookSlug = _bookService.GenerateSlug(Section.Book?.Title ?? "");
-                    var generatedChapterSlug = _bookService.GenerateSlug(Section.Title);
-                    
-                    if (Section.BookId != BookId || generatedChapterSlug != ChapterSlug)
-                    {
-                        // Redirect to the correct URL if slugs don't match
-                        RedirectToPage(new { 
-                            bookId = BookId, 
-                            bookSlug = generatedBookSlug,
-                            chapterId = ChapterId, 
-                            chapterSlug = generatedChapterSlug 
-                        });
-                        return;
-                    }
-                    
-                    // Parse the content as pages if it exists
-                    if (!string.IsNullOrEmpty(Section.Content))
-                    {
-                        try
-                        {
-                            Pages = JsonSerializer.Deserialize<List<List<string>>>(Section.Content);
-                            if (Pages != null && Pages.Any())
-                            {
-                                // Ensure PageId is within valid range
-                                if (CurrentPageNumber > Pages.Count) CurrentPageNumber = Pages.Count;
-                                
-                                // Set the current page content
-                                CurrentPage = Pages[CurrentPageNumber - 1];
-                                
-                                // Save to session storage for future use
-                                SavePageToSessionStorage(BookId, ChapterId, CurrentPageNumber, CurrentPage);
-                            }
-                        }
-                        catch
-                        {
-                            // If parsing fails, create a single page with the content
-                            Pages = new List<List<string>> { new List<string> { Section.Content } };
-                            CurrentPage = Pages[0];
-                            CurrentPageNumber = 1;
-                            
-                            // Save to session storage
-                            SavePageToSessionStorage(BookId, ChapterId, CurrentPageNumber, CurrentPage);
-                        }
-                    }
-                    else
-                    {
-                        Pages = new List<List<string>>();
-                    }
-                }
-            }
+            // If chapter not found in JSON, show not found
         }
 
         /// <summary>
@@ -388,11 +324,25 @@ namespace IllustratedBook.Pages.Books
                 
                 if (existingImage != null)
                 {
-                    // Return the existing image URL
+                    // Return the existing image URL from metadata
                     Console.WriteLine($"Using existing image for Book {BookId}, Chapter {ChapterId}, Page {CurrentPageNumber}");
+                    string? existingUrl = null;
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(existingImage.Metadata))
+                        {
+                            using var doc = System.Text.Json.JsonDocument.Parse(existingImage.Metadata);
+                            if (doc.RootElement.TryGetProperty("imageUrl", out var urlProp))
+                            {
+                                existingUrl = urlProp.GetString();
+                            }
+                        }
+                    }
+                    catch { /* ignore parse issues */ }
+
                     return new JsonResult(new { 
                         success = true, 
-                        imageUrl = existingImage.ImageUrl,
+                        imageUrl = existingUrl,
                         fromDatabase = true 
                     });
                 }

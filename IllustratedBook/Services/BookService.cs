@@ -34,46 +34,36 @@ namespace IllustratedBook.Services
                 .FirstOrDefaultAsync(b => b.BookId == bookId);
         }
 
-        // Get sections (chapters) for a book from JSON file
-        public async Task<IEnumerable<Section>> GetBookSectionsAsync(int bookId)
+        // Get chapters for a book from JSON file (no longer using Sections table)
+        public async Task<IEnumerable<ChapterViewModel>> GetBookSectionsAsync(int bookId)
         {
             // Try to get the book from JSON first
             var jsonBook = GetBookFromJson(bookId);
             if (jsonBook != null)
             {
-                // Convert JSON chapters to Section objects for compatibility
-                var sections = new List<Section>();
+                // Return chapters directly from JSON
+                var chapters = new List<ChapterViewModel>();
                 for (int i = 0; i < jsonBook.Chapters.Count; i++)
                 {
                     var chapter = jsonBook.Chapters[i];
-                    var section = new Section
+                    chapters.Add(new ChapterViewModel
                     {
-                        SectionId = i + 1, // Use index + 1 as section ID
-                        BookId = bookId,
+                        Index = i + 1,
                         Title = chapter.Title,
-                        Content = JsonSerializer.Serialize(chapter.Pages), // Store pages as JSON string
-                        CreatedAt = DateTime.UtcNow
-                    };
-                    sections.Add(section);
+                        Pages = chapter.Pages
+                    });
                 }
-                return sections;
+                return await Task.FromResult(chapters);
             }
 
-            // Fallback to database if JSON file doesn't exist
-            return await _dataContext.Sections
-                .Where(s => s.BookId == bookId)
-                .OrderBy(s => s.SectionId)
-                .ToListAsync();
+            // If JSON not found, return empty list (Sections table is removed)
+            return await Task.FromResult(Enumerable.Empty<ChapterViewModel>());
         }
 
-        // Get a specific section by ID from JSON file
-        public async Task<Section?> GetSectionByIdAsync(int sectionId)
+        // Get a specific chapter by index from JSON files
+        public async Task<ChapterViewModel?> GetSectionByIdAsync(int sectionId)
         {
-            // First, we need to find which book this section belongs to
-            // Since we're reading from JSON, we'll need to search through all JSON files
-            // For now, let's assume sectionId corresponds to the chapter index + 1
-            
-            // Try to find the book by looking through JSON files
+            // Search JSON files for a matching chapter index (index + 1)
             var booksDirectory = Path.Combine(_hostingEnvironment.ContentRootPath, "Books");
             if (Directory.Exists(booksDirectory))
             {
@@ -84,30 +74,22 @@ namespace IllustratedBook.Services
                     if (int.TryParse(bookId, out int id))
                     {
                         var jsonBook = GetBookFromJson(id);
-                        if (jsonBook != null && sectionId <= jsonBook.Chapters.Count)
+                        if (jsonBook != null && sectionId >= 1 && sectionId <= jsonBook.Chapters.Count)
                         {
-                            var chapter = jsonBook.Chapters[sectionId - 1]; // Convert to 0-based index
-                            var book = await GetBookByIdAsync(id);
-                            
-                            var section = new Section
+                            var chapter = jsonBook.Chapters[sectionId - 1];
+                            return await Task.FromResult(new ChapterViewModel
                             {
-                                SectionId = sectionId,
-                                BookId = id,
+                                Index = sectionId,
                                 Title = chapter.Title,
-                                Content = JsonSerializer.Serialize(chapter.Pages),
-                                CreatedAt = DateTime.UtcNow,
-                                Book = book // Set the book reference
-                            };
-                            return section;
+                                Pages = chapter.Pages
+                            });
                         }
                     }
                 }
             }
 
-            // Fallback to database if not found in JSON
-            return await _dataContext.Sections
-                .Include(s => s.Book)
-                .FirstOrDefaultAsync(s => s.SectionId == sectionId);
+            // Not found
+            return null;
         }
 
         // Get book data from JSON file
@@ -190,35 +172,7 @@ namespace IllustratedBook.Services
             return book;
         }
 
-        // Create a new section (chapter) with slug generation
-        public async Task<Section> CreateSectionAsync(int bookId, string title, string? content = null)
-        {
-            var section = new Section
-            {
-                BookId = bookId,
-                Title = title,
-                Content = content,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _dataContext.Sections.Add(section);
-            await _dataContext.SaveChangesAsync();
-            
-            return section;
-        }
-
-        // Update section content
-        public async Task<bool> UpdateSectionContentAsync(int sectionId, string content)
-        {
-            var section = await _dataContext.Sections.FindAsync(sectionId);
-            if (section != null)
-            {
-                section.Content = content;
-                await _dataContext.SaveChangesAsync();
-                return true;
-            }
-            return false;
-        }
+        // Sections removed: creation and update methods deleted
 
         // Legacy method for JSON-based books (keeping for backward compatibility)
         public BookViewModel? GetBook(string bookId)

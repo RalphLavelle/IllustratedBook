@@ -18,13 +18,12 @@ namespace IllustratedBook.Models
         /// The book this image belongs to
         /// </summary>
         public int BookId { get; set; }
-        public Book Book { get; set; } = new Book();
+        public Book? Book { get; set; }
 
         /// <summary>
         /// The chapter this image belongs to
         /// </summary>
         public int ChapterId { get; set; }
-        public Section Chapter { get; set; } = new Section();
 
         /// <summary>
         /// The page number within the chapter (1-based)
@@ -38,60 +37,15 @@ namespace IllustratedBook.Models
         public string Prompt { get; set; } = string.Empty;
 
         /// <summary>
-        /// The URL where the image is stored (either local file path or external URL)
+        /// JSON metadata for the image (includes URL, model info, and generation settings)
         /// </summary>
-        [Required]
-        public string ImageUrl { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The AI model that was used to generate this image
-        /// </summary>
-        [Required]
-        public string Model { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The model version that was used
-        /// </summary>
-        public string? ModelVersion { get; set; }
-
-        /// <summary>
-        /// The width of the generated image
-        /// </summary>
-        public int Width { get; set; } = 1024;
-
-        /// <summary>
-        /// The height of the generated image
-        /// </summary>
-        public int Height { get; set; } = 1024;
-
-        /// <summary>
-        /// The number of inference steps used
-        /// </summary>
-        public int InferenceSteps { get; set; } = 20;
-
-        /// <summary>
-        /// The guidance scale used
-        /// </summary>
-        public double GuidanceScale { get; set; } = 7.5;
-
-        /// <summary>
-        /// The negative prompt used
-        /// </summary>
-        public string? NegativePrompt { get; set; }
-
-        /// <summary>
-        /// When this image was generated
-        /// </summary>
-        public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
+        public string? Metadata { get; set; }
 
         /// <summary>
         /// When this record was created in the database
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        /// <summary>
-        /// When this record was last updated
-        /// </summary>
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        // NOTE: UpdatedAt removed per Task 11
     }
 } 

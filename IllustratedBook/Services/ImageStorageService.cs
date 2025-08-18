@@ -1,6 +1,7 @@
 using IllustratedBook.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
 namespace IllustratedBook.Services
 {
@@ -35,7 +36,7 @@ namespace IllustratedBook.Services
                     .Where(i => i.BookId == bookId && 
                                i.ChapterId == chapterId && 
                                i.PageNumber == pageNumber)
-                    .OrderByDescending(i => i.GeneratedAt) // Get the most recent one if multiple exist
+                    .OrderByDescending(i => i.CreatedAt) // Get the most recent one if multiple exist
                     .FirstOrDefaultAsync();
 
                 return existingImage;
@@ -80,6 +81,21 @@ namespace IllustratedBook.Services
         {
             try
             {
+                // Build metadata payload to store former discrete fields
+                var metadataObject = new
+                {
+                    imageUrl,
+                    model,
+                    modelVersion,
+                    width,
+                    height,
+                    inferenceSteps,
+                    guidanceScale,
+                    negativePrompt,
+                    generatedAt = DateTime.UtcNow
+                };
+                var metadataJson = JsonSerializer.Serialize(metadataObject);
+
                 // Create a new image record
                 var image = new Image
                 {
@@ -87,17 +103,8 @@ namespace IllustratedBook.Services
                     ChapterId = chapterId,
                     PageNumber = pageNumber,
                     Prompt = prompt,
-                    ImageUrl = imageUrl,
-                    Model = model,
-                    ModelVersion = modelVersion,
-                    Width = width,
-                    Height = height,
-                    InferenceSteps = inferenceSteps,
-                    GuidanceScale = guidanceScale,
-                    NegativePrompt = negativePrompt,
-                    GeneratedAt = DateTime.UtcNow,
+                    Metadata = metadataJson,
                     CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
                 };
 
                 // Add the image to the database

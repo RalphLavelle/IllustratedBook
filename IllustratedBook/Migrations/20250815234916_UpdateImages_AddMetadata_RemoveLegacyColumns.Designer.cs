@@ -4,6 +4,7 @@ using IllustratedBook.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IllustratedBook.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250815234916_UpdateImages_AddMetadata_RemoveLegacyColumns")]
+    partial class UpdateImages_AddMetadata_RemoveLegacyColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,7 +83,42 @@ namespace IllustratedBook.Migrations
 
                     b.HasIndex("BookId");
 
+                    b.HasIndex("ChapterId");
+
                     b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("IllustratedBook.Models.Section", b =>
+                {
+                    b.Property<int>("SectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SectionId"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SectionId");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("IllustratedBook.Models.User", b =>
@@ -133,6 +171,31 @@ namespace IllustratedBook.Migrations
                         .WithMany()
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("IllustratedBook.Models.Section", "Chapter")
+                        .WithMany()
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Chapter");
+                });
+
+            modelBuilder.Entity("IllustratedBook.Models.Section", b =>
+                {
+                    b.HasOne("IllustratedBook.Models.Book", "Book")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IllustratedBook.Models.Section", null)
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Book");

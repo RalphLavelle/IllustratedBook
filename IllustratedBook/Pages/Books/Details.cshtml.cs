@@ -16,7 +16,7 @@ namespace IllustratedBook.Pages.Books
         }
 
         public Book? Book { get; set; }
-        public IEnumerable<Section>? Sections { get; set; }
+        public IEnumerable<ChapterViewModel>? Sections { get; set; }
         public BookViewModel? JsonBook { get; set; }
         
         [FromRoute]
@@ -44,8 +44,7 @@ namespace IllustratedBook.Pages.Books
                     return;
                 }
                 
-                // Get the sections (chapters) for this book
-                // This will now try JSON first, then fall back to database
+                // Get the chapters for this book from JSON (no DB fallback)
                 Sections = await _bookService.GetBookSectionsAsync(BookId);
             }
         }
