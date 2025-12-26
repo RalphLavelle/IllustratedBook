@@ -1,7 +1,10 @@
 using IllustratedBook.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
 using System.Text.Json;
+using System.Net.Http;
+using System.IO;
 
 namespace IllustratedBook.Services
 {
@@ -13,11 +16,114 @@ namespace IllustratedBook.Services
     {
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public ImageStorageService(DataContext context, IConfiguration configuration)
+        public ImageStorageService(DataContext context, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _context = context;
             _configuration = configuration;
+            _environment = environment;
+        }
+
+        /// <summary>
+        /// Computes the absolute path to the top-level Images directory (one level above content root).
+        /// </summary>
+        private string GetImagesRoot()
+        {
+            var contentRoot = _environment.ContentRootPath;
+            var solutionRoot = Directory.GetParent(contentRoot)?.FullName ?? contentRoot;
+            return Path.Combine(solutionRoot, "Images");
+        }
+
+        /// <summary>
+        /// Ensures the folder for a specific book exists under the Images root and returns the path.
+        /// </summary>
+        private string EnsureBookImagesFolder(int bookId)
+        {
+            var imagesRoot = GetImagesRoot();
+            var bookFolder = Path.Combine(imagesRoot, bookId.ToString());
+            if (!Directory.Exists(bookFolder))
+            {
+                Directory.CreateDirectory(bookFolder);
+            }
+            return bookFolder;
+        }
+
+        /// <summary>
+        /// Saves an image file to the Images/{bookId} folder using chapter and page in the filename.
+        /// The filename format is: chapter-{chapterId}_page-{pageNumber}.png
+        /// </summary>
+        private async Task<(bool success, string? localPath)> SaveImageFileAsync(int bookId, int chapterId, int pageNumber, string imageUrl)
+        {
+            try
+            {
+                var bookFolder = EnsureBookImagesFolder(bookId);
+                var targetFileName = $"chapter-{chapterId}_page-{pageNumber}.png";
+                var targetPath = Path.Combine(bookFolder, targetFileName);
+
+                using var http = new HttpClient();
+                var bytes = await http.GetByteArrayAsync(imageUrl);
+                await File.WriteAllBytesAsync(targetPath, bytes);
+                return (true, targetPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving image file locally: {ex.Message}");
+                return (false, null);
+            }
+        }
+
+        /// <summary>
+        /// Resolves the local image file path and public URL for the given identifiers.
+        /// Tries the new canonical filename first, then falls back to any matching legacy file.
+        /// </summary>
+        public (string? localPath, string? publicUrl) ResolveLocalImagePathAndUrl(int bookId, int chapterId, int pageNumber, string? metadataJson)
+        {
+            try
+            {
+                var imagesRoot = GetImagesRoot();
+                var bookFolder = Path.Combine(imagesRoot, bookId.ToString());
+                if (!Directory.Exists(bookFolder))
+                {
+                    return (null, null);
+                }
+
+                var preferredName = $"chapter-{chapterId}_page-{pageNumber}.png";
+                var preferredPath = Path.Combine(bookFolder, preferredName);
+                if (File.Exists(preferredPath))
+                {
+                    var url = $"/Images/{bookId}/{preferredName}";
+                    return (preferredPath, url);
+                }
+
+                // Fallback: scan for legacy files and match exact chapter/page via regex to avoid substring collisions
+                // Supported extensions: png, jpg, jpeg, webp
+                var allFiles = Directory.GetFiles(bookFolder);
+                foreach (var file in allFiles)
+                {
+                    var name = Path.GetFileName(file);
+                    // Example matches: chapter-1_page-2.png or chapter-1_page-2_20250101T120000Z.png
+                    var m = System.Text.RegularExpressions.Regex.Match(name, @"^chapter-(\d+)_page-(\d+).*(\.png|\.jpg|\.jpeg|\.webp)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    if (m.Success)
+                    {
+                        if (int.TryParse(m.Groups[1].Value, out var ch) && int.TryParse(m.Groups[2].Value, out var pg))
+                        {
+                            if (ch == chapterId && pg == pageNumber)
+                            {
+                                var url = $"/Images/{bookId}/{name}";
+                                return (Path.Combine(bookFolder, name), url);
+                            }
+                        }
+                    }
+                }
+
+                return (null, null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error resolving local image path: {ex.Message}");
+                return (null, null);
+            }
         }
 
         /// <summary>
@@ -110,6 +216,20 @@ namespace IllustratedBook.Services
                 // Add the image to the database
                 _context.Images.Add(image);
                 await _context.SaveChangesAsync();
+
+                // Save the actual image file to the Images folder using chapter/page-only filename
+                if (!string.IsNullOrWhiteSpace(imageUrl))
+                {
+                    var (fileSaved, localPath) = await SaveImageFileAsync(bookId, chapterId, pageNumber, imageUrl);
+                    if (fileSaved)
+                    {
+                        Console.WriteLine($"Image file saved locally at {localPath}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Warning: Failed to save image file locally.");
+                    }
+                }
 
                 Console.WriteLine($"Image saved successfully for Book {bookId}, Chapter {chapterId}, Page {pageNumber}");
                 return true;

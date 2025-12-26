@@ -86,7 +86,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Chapter comp loaded');
             debugger;
-            const generateImageUrl = '@Url.Page("", "GenerateImage")';
+            const generateImageUrl = '@Url.Page("/Books/Chapter", "GenerateImage", new { bookId = Model.BookId, bookSlug = Model.BookSlug, chapterId = Model.ChapterId, chapterSlug = Model.ChapterSlug, pageId = Model.CurrentPageNumber })';
             
             // Save current page data to session storage for future use
             if (window.imageLoader) {

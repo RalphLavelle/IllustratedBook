@@ -277,6 +277,9 @@ namespace IllustratedBook.Pages.Books
         {
             try
             {
+                CurrentPageNumber = PageId ?? 1;
+                if (CurrentPageNumber < 1) CurrentPageNumber = 1;
+
                 var pageData = GetPageFromSessionStorage(BookId, ChapterId, CurrentPageNumber);
                 
                 if (pageData != null)
@@ -313,6 +316,9 @@ namespace IllustratedBook.Pages.Books
         {
             try
             {
+                CurrentPageNumber = PageId ?? 1;
+                if (CurrentPageNumber < 1) CurrentPageNumber = 1;
+
                 // Check if image generation is enabled
                 if (!IsImageGenerationEnabled())
                 {
@@ -324,26 +330,34 @@ namespace IllustratedBook.Pages.Books
                 
                 if (existingImage != null)
                 {
-                    // Return the existing image URL from metadata
+                    // Prefer a locally stored image under /Images if available
                     Console.WriteLine($"Using existing image for Book {BookId}, Chapter {ChapterId}, Page {CurrentPageNumber}");
-                    string? existingUrl = null;
-                    try
+
+                    var (localPath, localUrl) = _imageStorageService.ResolveLocalImagePathAndUrl(BookId, ChapterId, CurrentPageNumber, existingImage.Metadata);
+                    string? resolvedUrl = localUrl;
+
+                    // Fallback to remote imageUrl in metadata if local not found
+                    if (string.IsNullOrWhiteSpace(resolvedUrl))
                     {
-                        if (!string.IsNullOrWhiteSpace(existingImage.Metadata))
+                        try
                         {
-                            using var doc = System.Text.Json.JsonDocument.Parse(existingImage.Metadata);
-                            if (doc.RootElement.TryGetProperty("imageUrl", out var urlProp))
+                            if (!string.IsNullOrWhiteSpace(existingImage.Metadata))
                             {
-                                existingUrl = urlProp.GetString();
+                                using var doc = System.Text.Json.JsonDocument.Parse(existingImage.Metadata);
+                                if (doc.RootElement.TryGetProperty("imageUrl", out var urlProp))
+                                {
+                                    resolvedUrl = urlProp.GetString();
+                                }
                             }
                         }
+                        catch { }
                     }
-                    catch { /* ignore parse issues */ }
 
-                    return new JsonResult(new { 
-                        success = true, 
-                        imageUrl = existingUrl,
-                        fromDatabase = true 
+                    return new JsonResult(new {
+                        success = true,
+                        imageUrl = resolvedUrl,
+                        fromDatabase = true,
+                        fromLocal = !string.IsNullOrWhiteSpace(localUrl)
                     });
                 }
                 

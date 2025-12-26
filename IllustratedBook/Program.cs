@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using IllustratedBook.Models;
 using IllustratedBook.Services;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,22 @@ builder.Services.AddScoped<ImageStorageService>();
 var app = builder.Build();
 
 app.UseStaticFiles();
+
+// Serve the top-level Images directory (one level above ContentRootPath) at the /Images request path
+// This lets us return URLs like /Images/{bookId}/chapter-{chapterId}_page-{page}.png
+{
+    var contentRoot = app.Environment.ContentRootPath;
+    var solutionRoot = Directory.GetParent(contentRoot)?.FullName ?? contentRoot;
+    var imagesRoot = Path.Combine(solutionRoot, "Images");
+    if (Directory.Exists(imagesRoot))
+    {
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(imagesRoot),
+            RequestPath = "/Images"
+        });
+    }
+}
 
 // Enable session middleware
 app.UseSession();
